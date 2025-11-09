@@ -1,0 +1,11 @@
+tech_id,name,team,skill_level,current_row,current_rack
+T1,Ava,Alpha,1,B,6
+T2,Ben,Alpha,1,F,8
+T3,Chen,Alpha,2,F,8
+T4,Dia,Alpha,1,C,3
+T5,Eli,Beta,1,F,5
+T6,Farah,Beta,3,E,7
+T7,Gus,Beta,3,D,6
+T8,Hana,Beta,1,B,8
+T9,Ivan,Beta,1,A,2
+T10,Jia,Beta,1,F,3
