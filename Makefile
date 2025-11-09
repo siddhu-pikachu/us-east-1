@@ -1,6 +1,6 @@
 PY=python3.11
 
-.PHONY: setup env run seed lint fmt precommit docker
+.PHONY: setup env run seed lint fmt precommit docker sync-jira
 
 setup: env install precommit seed
 	@echo "Setup complete."
@@ -29,4 +29,7 @@ fmt:
 
 docker:
 	docker compose up --build
+
+sync-jira:
+	@. .venv/bin/activate; $(PY) scripts/sync_tickets_to_jira.py
 

@@ -14,7 +14,36 @@ def load_technicians() -> pd.DataFrame:
 
 
 def load_tickets() -> pd.DataFrame:
-    return pd.read_csv(DATA_DIR / "tickets.csv")
+    """Load tickets and normalize tags, estimate minutes if missing."""
+    tickets = pd.read_csv(DATA_DIR / "tickets.csv")
+    
+    # Normalize tags: convert comma-separated string to list
+    if "tags" not in tickets.columns:
+        tickets["tags"] = ""
+    tickets["tags"] = tickets["tags"].fillna("").apply(
+        lambda s: [t.strip().lower() for t in str(s).split(",") if t.strip()]
+    )
+    
+    # Estimate minutes if missing or invalid
+    try:
+        from ops.estimate import estimate_minutes
+        
+        if "estimated_minutes" not in tickets.columns or tickets["estimated_minutes"].isna().any():
+            tickets["estimated_minutes"] = tickets.apply(
+                lambda r: estimate_minutes(r.to_dict()), axis=1
+            )
+        # Also update any that are too low (< 10 minutes) or too high (> 60 minutes)
+        mask = (tickets["estimated_minutes"] < 10) | (tickets["estimated_minutes"] > 60) | tickets["estimated_minutes"].isna()
+        if mask.any():
+            tickets.loc[mask, "estimated_minutes"] = tickets.loc[mask].apply(
+                lambda r: estimate_minutes(r.to_dict()), axis=1
+            )
+    except Exception:
+        # Fallback if estimate module not available
+        if "estimated_minutes" not in tickets.columns:
+            tickets["estimated_minutes"] = 30
+    
+    return tickets
 
 
 def save_tickets(df: pd.DataFrame) -> None:
